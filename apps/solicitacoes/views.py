@@ -13,7 +13,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils import timezone
-from xhtml2pdf import pisa
 from .models import Solicitacao
 from django.utils import timezone
 from django.conf import settings
