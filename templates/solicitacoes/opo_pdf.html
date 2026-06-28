@@ -176,7 +176,8 @@ body{
 <div class="folha">
 
     <div class="logo-central">
-        <img src="{{ logo_pmba }}" alt="Logo PMBA">
+        {% load static %}
+            <img src="{% static 'logos/logo_pmba.png' %}">
     </div>
 
     <div class="cabecalho">

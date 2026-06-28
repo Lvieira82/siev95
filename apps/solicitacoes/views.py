@@ -27,7 +27,9 @@ import zipfile
 import os
 import qrcode
 from django.shortcuts import render
-
+import base64
+from io import BytesIO
+import qrcode
 from .models import Solicitacao
 from django.http import (
     HttpResponse,
@@ -111,50 +113,21 @@ def gerar_opo(request, id):
         f"/verificar/{solicitacao.protocolo}/"
     )
 
-    pasta_opo = os.path.join(
-        str(settings.MEDIA_ROOT),
-        "protocolos",
-        solicitacao.protocolo,
-        "opo"
+    # QR CODE EM MEMÓRIA
+    qr = qrcode.make(url_verificacao)
+
+    buffer = BytesIO()
+
+    qr.save(
+        buffer,
+        format="PNG"
     )
 
-    os.makedirs(
-        pasta_opo,
-        exist_ok=True
-    )
+    qr_base64 = base64.b64encode(
+        buffer.getvalue()
+    ).decode("utf-8")
 
-    qr_nome = f"qr_{solicitacao.protocolo}.png"
-
-    caminho_qr = os.path.join(
-        pasta_opo,
-        qr_nome
-    )
-
-    if not os.path.exists(caminho_qr):
-        qr = qrcode.make(url_verificacao)
-        qr.save(caminho_qr)
-
-    caminho_logo = os.path.join(
-        str(settings.MEDIA_ROOT),
-        "logos",
-        "logo_pmba.png"
-    )
-
-    print("CAMINHO LOGO:", caminho_logo)
-    print("LOGO EXISTE?", os.path.exists(caminho_logo))
-    print("CAMINHO QR:", caminho_qr)
-    print("QR EXISTE?", os.path.exists(caminho_qr))
-
-    logo_pmba = request.build_absolute_uri(
-        settings.MEDIA_URL + "logos/logo_pmba.png"
-    )
-
-    qr_code = request.build_absolute_uri(
-        settings.MEDIA_URL + f"protocolos/{solicitacao.protocolo}/opo/{qr_nome}"
-    )
-
-    print("URL LOGO:", logo_pmba)
-    print("URL QR:", qr_code)
+    qr_base64 = f"data:image/png;base64,{qr_base64}"
 
     return render(
         request,
@@ -162,12 +135,10 @@ def gerar_opo(request, id):
         {
             "solicitacao": solicitacao,
             "data_geracao": data_geracao,
-            "logo_pmba": logo_pmba,
-            "qr_code": qr_code,
+            "qr_base64": qr_base64,
             "url_verificacao": url_verificacao,
         }
     )
-
 # =====================================================
 # CONSULTA DE PROTOCOLO
 # =====================================================
