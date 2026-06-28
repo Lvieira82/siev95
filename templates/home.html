@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Sistema para Informações de Eventos{% endblock %}
+
+{% block content %}
+
+<div style="
+    background:white;
+    border-radius:28px;
+    padding:70px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.10);
+">
+
+    <div style="
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:35px;
+    ">
+
+        <div style="width:220px; text-align:center;">
+            <img src="/media/logos/logo_pmba.png" style="width:180px;">
+        </div>
+
+        <div style="flex:1; text-align:center;">
+
+            <h1 style="
+                font-size:78px;
+                margin-bottom:20px;
+                color:#1f2937;
+                font-weight:bold;
+            ">
+                SiEv
+            </h1>
+
+            <p style="
+                font-size:24px;
+                color:#374151;
+                margin-bottom:40px;
+                line-height:1.4;
+            ">
+                Plataforma oficial para informação e acompanhamento de eventos.
+            </p>
+
+            <div style="
+                display:flex;
+                justify-content:center;
+                gap:20px;
+                flex-wrap:wrap;
+            ">
+
+                <a href="/nova/" class="btn btn-primary">
+                    Nova Informação
+                </a>
+
+                <a href="/consultar/" class="btn btn-success">
+                    Consultar Informação
+                </a>
+
+                <a href="/gestao/" class="btn btn-dark">
+                    Gestão
+                </a>
+
+            </div>
+
+        </div>
+
+        <div style="width:220px; text-align:center;">
+            <img src="/media/logos/logo95.png" style="width:180px;">
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

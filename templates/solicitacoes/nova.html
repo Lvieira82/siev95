@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Nova Informação
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.form-card{
+    background:#fff;
+    max-width:1100px;
+    margin:auto;
+    padding:40px;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.form-title{
+    color:#1e3a8a;
+    margin-bottom:30px;
+    text-align:center;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.full{
+    grid-column:1 / -1;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:bold;
+    color:#374151;
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    font-size:15px;
+}
+
+textarea{
+    min-height:120px;
+}
+
+.upload-box{
+    border:2px dashed #cbd5e1;
+    padding:20px;
+    border-radius:10px;
+    background:#f8fafc;
+}
+
+.btn-area{
+    margin-top:30px;
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.btn-submit{
+    background:#1e3a8a;
+    color:white;
+    border:none;
+    padding:15px 35px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.btn-submit:hover{
+    background:#16306f;
+}
+
+.btn-back{
+    background:#6b7280;
+    color:white;
+    text-decoration:none;
+    padding:15px 35px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.erro{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:25px;
+}
+
+/* NOVO BLOCO LEGAL */
+
+.termos-lei{
+    background:#f8fbff;
+    border:1px solid #1e3a8a;
+    border-left:6px solid #1e3a8a;
+    padding:18px 22px;
+    border-radius:10px;
+    margin-bottom:30px;
+    color:#1f2937;
+    line-height:1.6;
+}
+
+.termos-lei h3{
+    color:#1e3a8a;
+    margin-bottom:10px;
+}
+
+.termos-lei p{
+    margin-bottom:10px;
+}
+
+.aceite-termos{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+.aceite-termos input{
+    width:auto;
+    margin-top:4px;
+}
+
+#areaFormulario{
+    opacity:.45;
+    pointer-events:none;
+    transition:.3s;
+}
+
+@media(max-width:768px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-card{
+        padding:20px;
+    }
+
+}
+
+</style>
+
+<div class="form-card">
+
+    <h1 class="form-title">
+        Solicitação de Evento
+    </h1>
+
+    <div class="termos-lei">
+
+        <h3>
+            ⚠️ Declaração de Veracidade das Informações
+        </h3>
+
+        <p>
+            A obrigação de fornecer dados corretos ao solicitar serviços públicos e as penalidades por mentir estão previstas principalmente no Código Penal Brasileiro (Decreto-Lei nº 2.848/1940) e na Lei de Processo Administrativo Federal (Lei nº 9.784/1999).
+        </p>
+
+        <p>
+            <strong>Falsidade Ideológica (Art. 299 do Código Penal):</strong>
+            Omitir ou inserir declaração falsa em documento público ou particular para prejudicar direito ou alterar a verdade sobre um fato. A pena é de reclusão de 1 a 5 anos e multa, caso o documento seja público.
+        </p>
+
+        <label class="aceite-termos">
+            <input
+                type="checkbox"
+                id="aceite_termos"
+                required
+            >
+
+            <span>
+                Declaro que li e estou ciente das informações acima e que todos os dados informados são verdadeiros.
+            </span>
+        </label>
+
+    </div>
+
+    {% if form.errors %}
+    <div class="erro">
+
+        <strong>Existem erros no formulário:</strong>
+
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ field.label }} - {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+
+    </div>
+    {% endif %}
+
+    <div id="areaFormulario">
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="grid">
+
+                <div>
+                    <label>Nome do Responsável *</label>
+                    {{ form.solicitante }}
+                </div>
+
+                <div>
+                    <label>CPF *</label>
+                    {{ form.cpf }}
+                </div>
+
+                <div>
+                    <label>Telefone *</label>
+                    {{ form.telefone }}
+                </div>
+
+                <div>
+                    <label>E-mail *</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="full">
+                    <label>Nome do Evento *</label>
+                    {{ form.nome_evento }}
+                </div>
+
+                <div class="full">
+                    <label>Local do Evento *</label>
+                    {{ form.local }}
+                </div>
+
+                <div>
+                    <label>Data do Evento *</label>
+                    {{ form.data_evento }}
+                </div>
+
+                <div>
+                    <label>Público Estimado *</label>
+                    {{ form.publico_estimado }}
+                </div>
+
+                <div>
+                    <label>Hora Início *</label>
+                    {{ form.hora_inicio }}
+                </div>
+
+                <div>
+                    <label>Hora Fim *</label>
+                    {{ form.hora_fim }}
+                </div>
+
+                <div class="full">
+                    <label>Observações</label>
+                    {{ form.observacoes }}
+                </div>
+
+                <div class="upload-box full">
+                    <label>Documento Sanitário (PDF) *</label>
+                    {{ form.documento_sanitario }}
+                </div>
+
+                <div class="upload-box full">
+                    <label>Documento do Meio Ambiente (PDF) *</label>
+                    {{ form.documento_meio_ambiente }}
+                </div>
+
+                <div
+                    id="campo_bombeiro"
+                    class="upload-box full"
+                    style="display:none;"
+                >
+                    <label>Documento do Corpo de Bombeiros *</label>
+                    {{ form.oficio_bombeiro }}
+                </div>
+
+            </div>
+
+            <div class="btn-area">
+
+                <a
+                    href="javascript:history.back()"
+                    class="btn-back"
+                >
+                    ← Voltar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn-submit"
+                >
+                    Enviar Informação
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+<script>
+
+$('#id_telefone').mask('(00) 00000-0000');
+$('#cpf').mask('000.000.000-00');
+
+$('#id_publico_estimado').on('input', function(){
+
+    let valor = parseInt($(this).val());
+
+    if(valor > 2000){
+
+        $('#campo_bombeiro').show();
+
+    }else{
+
+        $('#campo_bombeiro').hide();
+
+    }
+
+});
+
+const aceite = document.getElementById('aceite_termos');
+const formulario = document.getElementById('areaFormulario');
+
+aceite.addEventListener('change', function(){
+
+    if(this.checked){
+
+        formulario.style.opacity = '1';
+        formulario.style.pointerEvents = 'auto';
+
+    }else{
+
+        formulario.style.opacity = '.45';
+        formulario.style.pointerEvents = 'none';
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

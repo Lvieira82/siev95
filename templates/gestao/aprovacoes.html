@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% url 'listar_pendentes_opo' %}
+{% block title %}Aprovações{% endblock %}
+
+{% block content %}
+
+<style>
+.lista-aprovacoes{
+    max-width:1100px;
+    margin:40px auto;
+    background:white;
+    padding:30px;
+    border-radius:14px;
+    box-shadow:0 5px 18px rgba(0,0,0,.08);
+}
+
+.lista-aprovacoes h1{
+    color:#1e3a8a;
+    margin-bottom:25px;
+    text-align:center;
+}
+
+.tabela-aprovacoes{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.tabela-aprovacoes th,
+.tabela-aprovacoes td{
+    padding:12px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+}
+.btn-documentos{
+    background:#6b7280;
+    color:white;
+    padding:8px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+    margin-right:6px;
+}
+
+.tabela-aprovacoes th{
+    background:#1e3a8a;
+    color:white;
+}
+
+.btn-aprovar{
+    background:#198754;
+    color:white;
+    padding:8px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.btn-voltar{
+    display:inline-block;
+    margin-top:25px;
+    background:#6b7280;
+    color:white;
+    padding:12px 25px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+</style>
+
+<div class="lista-aprovacoes">
+
+    <h1>Solicitações Pendentes de OPO</h1>
+
+    <table class="tabela-aprovacoes">
+        <thead>
+            <tr>
+                <th>Protocolo</th>
+                <th>Evento</th>
+                <th>Solicitante</th>
+                <th>Data do Evento</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in solicitacoes %}
+            <tr>
+                <td>{{ item.protocolo }}</td>
+                <td>{{ item.nome_evento }}</td>
+                <td>{{ item.solicitante }}</td>
+                <td>{{ item.data_evento|date:"d/m/Y" }}</td>
+                <td>
+                    <a
+                        href="{% url 'documentos_solicitacao' item.id %}"
+                        class="btn-documentos"
+                        target="_blank"
+                    >
+                        Documentos
+                    </a>
+
+                    <a
+                        href="{% url 'aprovar_solicitacao' item.id %}"
+                        class="btn-aprovar"
+                        onclick="return confirm('Deseja aprovar gerar esta OPO?')"
+                    >
+                        Gerar OPO
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">
+                    Nenhuma solicitação pendente.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'painel_gestao' %}" class="btn-voltar">
+        ← Voltar
+    </a>
+
+</div>
+
+{% endblock %}
