@@ -25,7 +25,8 @@ from io import BytesIO
 import qrcode
 from django.http import FileResponse, Http404
 from django.urls import reverse
-
+import mimetypes
+import os
    
 def minhas_solicitacoes(request):
     return render(
@@ -432,6 +433,7 @@ def documentos_solicitacao(request, id):
         }
     )
 @login_required
+@login_required
 def documentos_solicitacao(request, id):
 
     solicitacao = get_object_or_404(
@@ -451,44 +453,46 @@ def documentos_solicitacao(request, id):
 
         if arquivo and arquivo.name:
 
+            if "sanitario" in arquivo.name:
+                tipo = "sanitario"
+            elif "meio_ambiente" in arquivo.name:
+                tipo = "meio_ambiente"
+            else:
+                tipo = "bombeiro"
+
             documentos.append({
                 "nome": nome,
-                "url": arquivo.url,
+                "url": reverse(
+                    "abrir_documento_solicitacao",
+                    args=[solicitacao.id, tipo]
+                ),
                 "arquivo": arquivo.name,
             })
-
-    return render(
-        request,
-        "gestao/documentos_solicitacao.html",
-        {
-            "solicitacao": solicitacao,
-            "documentos": documentos,
-        }
-    )
 
 @login_required
 def abrir_documento_solicitacao(request, id, tipo):
 
-    solicitacao = get_object_or_404(
-        Solicitacao,
-        id=id
-    )
+    solicitacao = get_object_or_404(Solicitacao, id=id)
 
-    mapa = {
+    arquivos = {
         "sanitario": solicitacao.documento_sanitario,
         "meio_ambiente": solicitacao.documento_meio_ambiente,
         "bombeiro": solicitacao.oficio_bombeiro,
     }
 
-    arquivo = mapa.get(tipo)
+    arquivo = arquivos.get(tipo)
 
     if not arquivo:
         raise Http404("Documento não encontrado.")
 
-    if not os.path.exists(arquivo.path):
-        raise Http404("Arquivo não encontrado no disco.")
+    caminho = arquivo.path
+
+    if not os.path.exists(caminho):
+        raise Http404("Arquivo não existe.")
+
+    content_type, _ = mimetypes.guess_type(caminho)
 
     return FileResponse(
-        open(arquivo.path, "rb"),
-        content_type="application/pdf"
+        open(caminho, "rb"),
+        content_type=content_type or "application/pdf"
     )

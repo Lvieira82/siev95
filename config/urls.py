@@ -19,15 +19,16 @@ from apps.solicitacoes.views import (
     documentos_solicitacao,
     abrir_documento_solicitacao,
     
+    
 )
 
 urlpatterns = [
 
     path('admin/', admin.site.urls),
     path(
-        "documentos/<int:id>/<str:tipo>/",
+        "documento/<int:id>/<str:tipo>/",
         abrir_documento_solicitacao,
-        name="abrir_documento_solicitacao"
+        name="abrir_documento_solicitacao",
     ),
 
     path('', home, name='home'),

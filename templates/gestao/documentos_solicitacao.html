@@ -25,13 +25,27 @@
     
 
        {% for doc in documentos %}
-            <p>
-                <a href="{{ doc.url }}" target="_blank">
-                    📎 Abrir {{ doc.nome }}
-                </a>
-            </p>
+
+            {% if doc.existe %}
+
+                <p>
+                    <a href="{{ doc.url }}" target="_blank">
+                        📎 Abrir {{ doc.nome }}
+                    </a>
+                </p>
+
+            {% else %}
+
+                <p style="color:#b91c1c; font-weight:bold;">
+                    ⚠ {{ doc.nome }} não encontrado no disco.
+                </p>
+
+            {% endif %}
+
         {% empty %}
+
             <p>Nenhum documento anexado.</p>
+
         {% endfor %}
     
     <a
