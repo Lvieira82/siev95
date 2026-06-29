@@ -125,9 +125,8 @@
                 <td>{{ item.data_evento|date:"d/m/Y" }}</td>
                 <td>
                     <a
-                        href="{% url 'documentos_solicitacao' item.id %}"
+                        href="{% url 'baixar_processo' item.id %}"
                         class="btn-documentos"
-                        target="_blank"
                     >
                         Documentos
                     </a>
