@@ -19,10 +19,11 @@ DEBUG = config(
     cast=bool
 )
 
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS",
-    default="localhost,127.0.0.1"
-).split(",")
+ALLOWED_HOSTS = [
+    "siev95.onrender.com",
+    "siev95.com.br",
+    "www.siev95.com.br",
+]
 
 # =====================
 # APPS
@@ -151,3 +152,9 @@ DEFAULT_FROM_EMAIL='adm95cipm@gmail.com'
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://siev95.com.br",
+    "https://www.siev95.com.br",
+    "https://siev95.onrender.com",
+]
