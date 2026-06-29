@@ -733,28 +733,35 @@ def documentos_solicitacao(request, id):
         }
     )
 @login_required
-def abrir_documento_solicitacao(request, id, tipo):
+def documentos_solicitacao(request, id):
 
     solicitacao = get_object_or_404(
         Solicitacao,
         id=id
     )
 
-    mapa = {
-        "sanitario": solicitacao.documento_sanitario,
-        "meio_ambiente": solicitacao.documento_meio_ambiente,
-        "bombeiro": solicitacao.oficio_bombeiro,
-    }
+    documentos = []
 
-    arquivo = mapa.get(tipo)
+    campos = [
+        ("Documento Sanitário", solicitacao.documento_sanitario),
+        ("Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+    ]
 
-    if not arquivo:
-        raise Http404("Documento não encontrado.")
+    for nome, arquivo in campos:
 
-    if not os.path.exists(arquivo.path):
-        raise Http404("Arquivo não encontrado no disco.")
+        if arquivo:
+            documentos.append({
+                "nome": nome,
+                "url": arquivo.url,
+                "arquivo": arquivo.name,
+            })
 
-    return FileResponse(
-        open(arquivo.path, "rb"),
-        content_type="application/pdf"
+    return render(
+        request,
+        "gestao/documentos_solicitacao.html",
+        {
+            "solicitacao": solicitacao,
+            "documentos": documentos,
+        }
     )
