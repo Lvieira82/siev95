@@ -20,7 +20,9 @@ from pathlib import Path
 from django.conf import settings
 from datetime import datetime
 import uuid
-
+import base64
+from io import BytesIO
+import qrcode
 
    
 def minhas_solicitacoes(request):
@@ -305,183 +307,46 @@ def verificar_autenticidade(request, protocolo):
 # GERAR PDF
 # =====================================================
 
-def gerar_pdf_solicitacao(solicitacao):
+@login_required
+def gerar_opo(request, id):
 
-    pasta = (
-        Path(settings.MEDIA_ROOT)
-        / "protocolos"
-        / solicitacao.protocolo
+    solicitacao = get_object_or_404(
+        Solicitacao,
+        id=id,
+        status="APROVADO"
     )
 
-    pasta.mkdir(
-        parents=True,
-        exist_ok=True
+    data_geracao = timezone.localtime()
+
+    url_verificacao = request.build_absolute_uri(
+        f"/verificar/{solicitacao.protocolo}/"
     )
 
-    arquivo_pdf = (
-        pasta /
-        f"OPO_{solicitacao.protocolo}.pdf"
+    qr_img = qrcode.make(url_verificacao)
+
+    buffer = BytesIO()
+
+    qr_img.save(
+        buffer,
+        format="PNG"
     )
 
-    c = canvas.Canvas(
-        str(arquivo_pdf),
-        pagesize=A4
+    qr_base64 = base64.b64encode(
+        buffer.getvalue()
+    ).decode("utf-8")
+
+    qr_base64 = f"data:image/png;base64,{qr_base64}"
+
+    return render(
+        request,
+        "solicitacoes/opo_pdf.html",
+        {
+            "solicitacao": solicitacao,
+            "data_geracao": data_geracao,
+            "qr_base64": qr_base64,
+            "url_verificacao": url_verificacao,
+        }
     )
-
-    largura, altura = A4
-
-    y = altura - 50
-
-    c.setFont(
-        "Helvetica-Bold",
-        12
-    )
-
-    c.drawCentredString(
-        largura / 2,
-        y,
-        "POLÍCIA MILITAR DA BAHIA"
-    )
-
-    y -= 18
-
-    c.drawCentredString(
-        largura / 2,
-        y,
-        "COMANDO DE OPERAÇÕES POLICIAIS MILITARES"
-    )
-
-    y -= 18
-
-    c.drawCentredString(
-        largura / 2,
-        y,
-        "95ª CIPM - CATU"
-    )
-
-    y -= 35
-
-    data_emissao = datetime.now().strftime(
-        "%d/%m/%Y"
-    )
-
-    c.setFont(
-        "Helvetica-Bold",
-        11
-    )
-
-    c.drawString(
-        50,
-        y,
-        f"OPO Nº {solicitacao.protocolo} - {data_emissao}"
-    )
-
-    y -= 30
-
-    c.drawString(
-        50,
-        y,
-        "RECOMENDO EXECUTARDES A SEGUINTE OPO:"
-    )
-
-    y -= 35
-
-    campos = [
-
-        ("EVENTO", solicitacao.nome_evento),
-
-        ("LOCAL", solicitacao.local),
-
-        (
-            "DATA",
-            solicitacao.data_evento.strftime("%d/%m/%Y")
-        ),
-
-        (
-            "HORÁRIO",
-            f"{solicitacao.hora_inicio.strftime('%H:%M')} - "
-            f"{solicitacao.hora_fim.strftime('%H:%M')}"
-        ),
-
-        (
-            "SOLICITANTE",
-            f"{solicitacao.solicitante} - "
-            f"{solicitacao.telefone}"
-        ),
-
-        (
-            "E-MAIL",
-            solicitacao.email
-        ),
-
-        (
-            "PÚBLICO ESTIMADO",
-            str(solicitacao.publico_estimado)
-        ),
-
-    ]
-
-    for titulo, valor in campos:
-
-        c.setFont(
-            "Helvetica-Bold",
-            10
-        )
-
-        c.drawString(
-            50,
-            y,
-            f"{titulo}:"
-        )
-
-        y -= 15
-
-        c.setFont(
-            "Helvetica",
-            10
-        )
-
-        c.drawString(
-            70,
-            y,
-            str(valor)
-        )
-
-        y -= 25
-
-    c.setFont(
-        "Helvetica-Bold",
-        10
-    )
-
-    c.drawString(
-        50,
-        y,
-        "OBSERVAÇÕES:"
-    )
-
-    y -= 20
-
-    c.setFont(
-        "Helvetica",
-        10
-    )
-
-    texto = solicitacao.observacoes or "-"
-
-    for linha in texto.splitlines():
-
-        c.drawString(
-            70,
-            y,
-            linha
-        )
-
-        y -= 15
-
-    c.save()
-
-    return arquivo_pdf
 
 def login_gestao(request):
 
@@ -561,6 +426,47 @@ def documentos_solicitacao(request, id):
             "nome": "Documento Corpo de Bombeiros",
             "url": solicitacao.oficio_bombeiro.url
         })
+
+    return render(
+        request,
+        "gestao/documentos_solicitacao.html",
+        {
+            "solicitacao": solicitacao,
+            "documentos": documentos,
+        }
+    )@login_required
+def documentos_solicitacao(request, id):
+
+    solicitacao = get_object_or_404(
+        Solicitacao,
+        id=id
+    )
+
+    documentos = []
+
+    campos = [
+        ("Documento Sanitário", solicitacao.documento_sanitario),
+        ("Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+    ]
+
+    for nome, arquivo in campos:
+
+        if arquivo:
+
+            try:
+                existe = os.path.exists(arquivo.path)
+            except Exception:
+                existe = False
+
+            documentos.append(
+                {
+                    "nome": nome,
+                    "url": arquivo.url if existe else None,
+                    "existe": existe,
+                    "arquivo": arquivo.name,
+                }
+            )
 
     return render(
         request,
