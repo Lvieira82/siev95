@@ -37,6 +37,23 @@ def pasta_opo(instance, filename):
         "opo",
         filename
     )
+    
+def caminho_documento_sanitario(instance, filename):
+    if not instance.protocolo:
+        instance.protocolo = gerar_protocolo_unico()
+    return f"protocolos/{instance.protocolo}/documento_sanitario.pdf"
+
+
+def caminho_documento_meio_ambiente(instance, filename):
+    if not instance.protocolo:
+        instance.protocolo = gerar_protocolo_unico()
+    return f"protocolos/{instance.protocolo}/documento_meio_ambiente.pdf"
+
+
+def caminho_oficio_bombeiro(instance, filename):
+    if not instance.protocolo:
+        instance.protocolo = gerar_protocolo_unico()
+    return f"protocolos/{instance.protocolo}/oficio_bombeiro.pdf"
 class Solicitacao(models.Model):
     
 
@@ -135,7 +152,7 @@ class Solicitacao(models.Model):
     )
 
     documento_sanitario = models.FileField(
-        upload_to="temp/",
+        upload_to=caminho_documento_sanitario,
         blank=True,
         null=True,
         validators=[
@@ -146,7 +163,7 @@ class Solicitacao(models.Model):
     )
 
     documento_meio_ambiente = models.FileField(
-        upload_to="temp/",
+        upload_to=caminho_documento_meio_ambiente,
         blank=True,
         null=True,
         validators=[
@@ -157,7 +174,7 @@ class Solicitacao(models.Model):
     )
 
     oficio_bombeiro = models.FileField(
-        upload_to="temp/",
+        upload_to=caminho_oficio_bombeiro,
         blank=True,
         null=True,
         validators=[
@@ -166,7 +183,6 @@ class Solicitacao(models.Model):
             )
         ]
     )
-
     
     assinado_por = models.CharField(
         max_length=200,
@@ -194,72 +210,8 @@ class Solicitacao(models.Model):
 
     def save(self, *args, **kwargs):
 
-        novo = self.pk is None
-
         if not self.protocolo:
             self.protocolo = gerar_protocolo_unico()
 
         super().save(*args, **kwargs)
-
-        if novo:
-
-            pasta = os.path.join(
-                settings.MEDIA_ROOT,
-                "protocolos",
-                self.protocolo
-            )
-
-            os.makedirs(
-                pasta,
-                exist_ok=True
-            )
-
-            arquivos = [
-                ("documento_sanitario", "documento_sanitario.pdf"),
-                ("documento_meio_ambiente", "documento_meio_ambiente.pdf"),
-                ("oficio_bombeiro", "oficio_bombeiro.pdf"),
-            ]
-
-            campos_alterados = []
-
-            for campo, nome_final in arquivos:
-
-                arquivo = getattr(self, campo)
-
-                if arquivo and arquivo.name:
-
-                    origem = arquivo.path
-
-                    destino = os.path.join(
-                        pasta,
-                        nome_final
-                    )
-
-                    if os.path.exists(origem):
-
-                        os.replace(
-                            origem,
-                            destino
-                        )
-
-                        novo_caminho = f"protocolos/{self.protocolo}/{nome_final}"
-
-                        setattr(
-                            self,
-                            campo,
-                            novo_caminho
-                        )
-
-                        campos_alterados.append(campo)
-
-            if campos_alterados:
-
-                super().save(
-                    update_fields=campos_alterados
-                )
-
-    def __str__(self):
-
-            return self.nome_evento
         
-    
