@@ -17,17 +17,13 @@ from apps.solicitacoes.views import (
     painel_gestao,
     listar_pendentes_opo,
     documentos_solicitacao,
-    abrir_documento_solicitacao,
+    
 )
 
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path(
-        "documentos/<int:id>/<str:tipo>/",
-        abrir_documento_solicitacao,
-        name="abrir_documento_solicitacao"
-    ),
+    
 
     path('', home, name='home'),
 
