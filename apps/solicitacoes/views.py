@@ -697,40 +697,30 @@ PMBA - Uma Força a Serviço do Cidadão.
 def home(request):
     return render(request, "home.html")
 @login_required
-def documentos_solicitacao(request, id):
+def abrir_documento_solicitacao(request, id, tipo):
 
     solicitacao = get_object_or_404(
         Solicitacao,
         id=id
     )
 
-    documentos = []
+    arquivos = {
+        "sanitario": solicitacao.documento_sanitario,
+        "meio_ambiente": solicitacao.documento_meio_ambiente,
+        "bombeiro": solicitacao.oficio_bombeiro,
+    }
 
-    if solicitacao.documento_sanitario:
-        documentos.append({
-            "nome": "Documento Sanitário",
-            "url": solicitacao.documento_sanitario.url
-        })
+    arquivo = arquivos.get(tipo)
 
-    if solicitacao.documento_meio_ambiente:
-        documentos.append({
-            "nome": "Documento Meio Ambiente",
-            "url": solicitacao.documento_meio_ambiente.url
-        })
+    if not arquivo or not arquivo.name:
+        raise Http404("Documento não encontrado.")
 
-    if solicitacao.oficio_bombeiro:
-        documentos.append({
-            "nome": "Documento Corpo de Bombeiros",
-            "url": solicitacao.oficio_bombeiro.url
-        })
+    if not os.path.exists(arquivo.path):
+        raise Http404("Arquivo não existe no disco.")
 
-    return render(
-        request,
-        "gestao/documentos_solicitacao.html",
-        {
-            "solicitacao": solicitacao,
-            "documentos": documentos,
-        }
+    return FileResponse(
+        open(arquivo.path, "rb"),
+        content_type="application/pdf"
     )
 @login_required
 def documentos_solicitacao(request, id):
