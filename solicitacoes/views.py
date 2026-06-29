@@ -23,7 +23,8 @@ import uuid
 import base64
 from io import BytesIO
 import qrcode
-
+from django.http import FileResponse, Http404
+from django.urls import reverse
    
 def minhas_solicitacoes(request):
     return render(
@@ -434,7 +435,8 @@ def documentos_solicitacao(request, id):
             "solicitacao": solicitacao,
             "documentos": documentos,
         }
-    )@login_required
+    )
+@login_required
 def documentos_solicitacao(request, id):
 
     solicitacao = get_object_or_404(
@@ -445,28 +447,22 @@ def documentos_solicitacao(request, id):
     documentos = []
 
     campos = [
-        ("Documento Sanitário", solicitacao.documento_sanitario),
-        ("Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
-        ("Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+        ("sanitario", "Documento Sanitário", solicitacao.documento_sanitario),
+        ("meio_ambiente", "Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("bombeiro", "Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
     ]
 
-    for nome, arquivo in campos:
+    for tipo, nome, arquivo in campos:
 
         if arquivo:
-
-            try:
-                existe = os.path.exists(arquivo.path)
-            except Exception:
-                existe = False
-
-            documentos.append(
-                {
-                    "nome": nome,
-                    "url": arquivo.url if existe else None,
-                    "existe": existe,
-                    "arquivo": arquivo.name,
-                }
-            )
+            documentos.append({
+                "nome": nome,
+                "url": reverse(
+                    "abrir_documento_solicitacao",
+                    args=[solicitacao.id, tipo]
+                ),
+                "arquivo": arquivo.name,
+            })
 
     return render(
         request,
@@ -475,4 +471,32 @@ def documentos_solicitacao(request, id):
             "solicitacao": solicitacao,
             "documentos": documentos,
         }
+    )
+
+
+@login_required
+def abrir_documento_solicitacao(request, id, tipo):
+
+    solicitacao = get_object_or_404(
+        Solicitacao,
+        id=id
+    )
+
+    mapa = {
+        "sanitario": solicitacao.documento_sanitario,
+        "meio_ambiente": solicitacao.documento_meio_ambiente,
+        "bombeiro": solicitacao.oficio_bombeiro,
+    }
+
+    arquivo = mapa.get(tipo)
+
+    if not arquivo:
+        raise Http404("Documento não encontrado.")
+
+    if not os.path.exists(arquivo.path):
+        raise Http404("Arquivo não encontrado no disco.")
+
+    return FileResponse(
+        open(arquivo.path, "rb"),
+        content_type="application/pdf"
     )

@@ -254,8 +254,11 @@ body{
         <strong>{{ solicitacao.comandante_opo }}</strong>
     </div>
 
-    {{ qr_code }}
-
+   {% if qr_base64 %}
+    <div class="qrcode">
+        <img src="{{ qr_base64|safe }}" alt="QR Code">
+    </div>
+    {% endif %}
     <div class="autenticidade">
         Verifique a autenticidade deste documento escaneando o QR Code ou acessando:<br>
         <span class="url">{{ url_verificacao }}</span>

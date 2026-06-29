@@ -26,55 +26,31 @@
 
        {% for doc in documentos %}
 
-            {% if doc.existe %}
+            <p>
+                <a
+                    href="{{ doc.url }}"
+                    target="_blank"
+                    style="
+                        display:inline-block;
+                        background:#1e3a8a;
+                        color:white;
+                        padding:12px 18px;
+                        border-radius:8px;
+                        text-decoration:none;
+                        font-weight:bold;
+                        margin-bottom:10px;
+                    "
+                >
+                    📎 Abrir {{ doc.nome }}
+                </a>
+            </p>
 
-                <p>
-                    <a
-                        href="{{ doc.url }}"
-                        target="_blank"
-                        style="
-                            display:inline-block;
-                            background:#1e3a8a;
-                            color:white;
-                            padding:12px 18px;
-                            border-radius:8px;
-                            text-decoration:none;
-                            font-weight:bold;
-                            margin-bottom:10px;
-                        "
-                    >
-                        📎 Abrir {{ doc.nome }}
-                    </a>
-                </p>
+        {% empty %}
 
-            {% else %}
+            <p>Nenhum documento anexado.</p>
 
-                <p style="
-                    color:#b91c1c;
-                    font-weight:bold;
-                    background:#fee2e2;
-                    padding:12px;
-                    border-radius:8px;
-                ">
-                    ⚠ {{ doc.nome }} não encontrado no disco.
-                    <br>
-                    <small>{{ doc.arquivo }}</small>
-                </p>
-
-            {% endif %}
-
-{% empty %}
-
-    <p>Nenhum documento anexado.</p>
-
-{% endfor %}
-
-    {% else %}
-
-        <p>Nenhum documento anexado.</p>
-
-    {% endif %}
-
+        {% endfor %}
+    
     <a
         href="{% url 'listar_pendentes_opo' %}"
         style="
