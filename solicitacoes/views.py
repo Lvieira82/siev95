@@ -447,20 +447,18 @@ def documentos_solicitacao(request, id):
     documentos = []
 
     campos = [
-        ("sanitario", "Documento Sanitário", solicitacao.documento_sanitario),
-        ("meio_ambiente", "Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
-        ("bombeiro", "Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+        ("Documento Sanitário", solicitacao.documento_sanitario),
+        ("Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
     ]
 
-    for tipo, nome, arquivo in campos:
+    for nome, arquivo in campos:
 
-        if arquivo:
+        if arquivo and arquivo.name:
+
             documentos.append({
                 "nome": nome,
-                "url": reverse(
-                    "abrir_documento_solicitacao",
-                    args=[solicitacao.id, tipo]
-                ),
+                "url": arquivo.url,
                 "arquivo": arquivo.name,
             })
 
@@ -472,7 +470,6 @@ def documentos_solicitacao(request, id):
             "documentos": documentos,
         }
     )
-
 
 @login_required
 def abrir_documento_solicitacao(request, id, tipo):
