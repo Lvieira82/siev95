@@ -194,69 +194,69 @@ class Solicitacao(models.Model):
 
     def save(self, *args, **kwargs):
 
-    novo = self.pk is None
+        novo = self.pk is None
 
-    if not self.protocolo:
-        self.protocolo = gerar_protocolo_unico()
+        if not self.protocolo:
+            self.protocolo = gerar_protocolo_unico()
 
-    super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
-    if novo:
+        if novo:
 
-        pasta = os.path.join(
-            settings.MEDIA_ROOT,
-            "protocolos",
-            self.protocolo
-        )
-
-        os.makedirs(
-            pasta,
-            exist_ok=True
-        )
-
-        arquivos = [
-            ("documento_sanitario", "documento_sanitario.pdf"),
-            ("documento_meio_ambiente", "documento_meio_ambiente.pdf"),
-            ("oficio_bombeiro", "oficio_bombeiro.pdf"),
-        ]
-
-        campos_alterados = []
-
-        for campo, nome_final in arquivos:
-
-            arquivo = getattr(self, campo)
-
-            if arquivo and arquivo.name:
-
-                origem = arquivo.path
-
-                destino = os.path.join(
-                    pasta,
-                    nome_final
-                )
-
-                if os.path.exists(origem):
-
-                    os.replace(
-                        origem,
-                        destino
-                    )
-
-                    novo_caminho = f"protocolos/{self.protocolo}/{nome_final}"
-
-                    setattr(
-                        self,
-                        campo,
-                        novo_caminho
-                    )
-
-                    campos_alterados.append(campo)
-
-        if campos_alterados:
-
-            super().save(
-                update_fields=campos_alterados
+            pasta = os.path.join(
+                settings.MEDIA_ROOT,
+                "protocolos",
+                self.protocolo
             )
+
+            os.makedirs(
+                pasta,
+                exist_ok=True
+            )
+
+            arquivos = [
+                ("documento_sanitario", "documento_sanitario.pdf"),
+                ("documento_meio_ambiente", "documento_meio_ambiente.pdf"),
+                ("oficio_bombeiro", "oficio_bombeiro.pdf"),
+            ]
+
+            campos_alterados = []
+
+            for campo, nome_final in arquivos:
+
+                arquivo = getattr(self, campo)
+
+                if arquivo and arquivo.name:
+
+                    origem = arquivo.path
+
+                    destino = os.path.join(
+                        pasta,
+                        nome_final
+                    )
+
+                    if os.path.exists(origem):
+
+                        os.replace(
+                            origem,
+                            destino
+                        )
+
+                        novo_caminho = f"protocolos/{self.protocolo}/{nome_final}"
+
+                        setattr(
+                            self,
+                            campo,
+                            novo_caminho
+                        )
+
+                        campos_alterados.append(campo)
+
+            if campos_alterados:
+
+                super().save(
+                    update_fields=campos_alterados
+                )
 
     def __str__(self):
 
