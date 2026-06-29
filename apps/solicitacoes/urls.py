@@ -15,6 +15,11 @@ from apps.solicitacoes.views import (
     logout_gestao,
     painel_gestao,
     baixar_processo,
+    abrir_documento_solicitacao,
+    documentos_solicitacao,
+    aprovar_solicitacao,
+    gerar_opo,
+    listar_pendentes_opo,
 )
 
 urlpatterns = [
@@ -26,6 +31,36 @@ urlpatterns = [
     path('gestao/', login_gestao, name='login_gestao'),
 
     path('logout/', logout_gestao, name='logout_gestao'),
+    
+    path(
+        "aprovar/<int:id>/",
+        aprovar_solicitacao,
+        name="aprovar_solicitacao"
+    ),
+
+    path(
+        "opo/<int:id>/",
+        gerar_opo,
+        name="gerar_opo"
+    ),
+
+    path(
+        "aprovacoes/",
+        listar_pendentes_opo,
+        name="listar_pendentes_opo"
+    ),
+
+    path(
+        "documentos/<int:id>/",
+        documentos_solicitacao,
+        name="documentos_solicitacao"
+    ),
+
+    path(
+        "documento/<int:id>/<str:tipo>/",
+        abrir_documento_solicitacao,
+        name="abrir_documento_solicitacao"
+    ),
 
     path(
         'painel/',

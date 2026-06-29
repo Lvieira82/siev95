@@ -29,6 +29,7 @@ from django.shortcuts import render
 import base64
 from io import BytesIO
 import qrcode
+from django.http import HttpResponse, FileResponse, Http404
 from .models import Solicitacao
 from django.http import (
     HttpResponse,
@@ -733,18 +734,25 @@ def documentos_solicitacao(request, id):
     documentos = []
 
     campos = [
-        ("Documento Sanitário", solicitacao.documento_sanitario),
-        ("Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
-        ("Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+        ("sanitario", "Documento Sanitário", solicitacao.documento_sanitario),
+        ("meio_ambiente", "Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("bombeiro", "Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
     ]
 
-    for nome, arquivo in campos:
+    for tipo, nome, arquivo in campos:
 
-        if arquivo:
+        if arquivo and arquivo.name:
+
+            existe = os.path.exists(arquivo.path)
+
             documentos.append({
                 "nome": nome,
-                "url": arquivo.url,
+                "url": reverse(
+                    "abrir_documento_solicitacao",
+                    args=[solicitacao.id, tipo]
+                ) if existe else "",
                 "arquivo": arquivo.name,
+                "existe": existe,
             })
 
     return render(
