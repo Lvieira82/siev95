@@ -732,3 +732,29 @@ def documentos_solicitacao(request, id):
             "documentos": documentos,
         }
     )
+@login_required
+def abrir_documento_solicitacao(request, id, tipo):
+
+    solicitacao = get_object_or_404(
+        Solicitacao,
+        id=id
+    )
+
+    mapa = {
+        "sanitario": solicitacao.documento_sanitario,
+        "meio_ambiente": solicitacao.documento_meio_ambiente,
+        "bombeiro": solicitacao.oficio_bombeiro,
+    }
+
+    arquivo = mapa.get(tipo)
+
+    if not arquivo:
+        raise Http404("Documento não encontrado.")
+
+    if not os.path.exists(arquivo.path):
+        raise Http404("Arquivo não encontrado no disco.")
+
+    return FileResponse(
+        open(arquivo.path, "rb"),
+        content_type="application/pdf"
+    )
