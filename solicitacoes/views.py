@@ -25,6 +25,7 @@ from io import BytesIO
 import qrcode
 from django.http import FileResponse, Http404
 from django.urls import reverse
+
    
 def minhas_solicitacoes(request):
     return render(
@@ -400,33 +401,27 @@ def painel_gestao(request):
 def home(request):
     return render(request, 'home.html')
 
+from django.urls import reverse
+
 @login_required
 def documentos_solicitacao(request, id):
 
-    solicitacao = get_object_or_404(
-        Solicitacao,
-        id=id
-    )
+    solicitacao = get_object_or_404(Solicitacao, id=id)
 
     documentos = []
 
-    if solicitacao.documento_sanitario:
-        documentos.append({
-            "nome": "Documento Sanitário",
-            "url": solicitacao.documento_sanitario.url
-        })
+    campos = [
+        ("sanitario", "Documento Sanitário", solicitacao.documento_sanitario),
+        ("meio_ambiente", "Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("bombeiro", "Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+    ]
 
-    if solicitacao.documento_meio_ambiente:
-        documentos.append({
-            "nome": "Documento Meio Ambiente",
-            "url": solicitacao.documento_meio_ambiente.url
-        })
-
-    if solicitacao.oficio_bombeiro:
-        documentos.append({
-            "nome": "Documento Corpo de Bombeiros",
-            "url": solicitacao.oficio_bombeiro.url
-        })
+    for tipo, nome, arquivo in campos:
+        if arquivo and arquivo.name:
+            documentos.append({
+                "nome": nome,
+                "url": reverse("abrir_documento_solicitacao", args=[solicitacao.id, tipo]),
+            })
 
     return render(
         request,
