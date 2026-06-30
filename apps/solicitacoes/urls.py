@@ -20,11 +20,19 @@ from apps.solicitacoes.views import (
     aprovar_solicitacao,
     gerar_opo,
     listar_pendentes_opo,
+    visualizar_documentos,
 )
 
 urlpatterns = [
 
     path('admin/', admin.site.urls),
+    
+    path(
+        "documentos/<int:id>/",
+        visualizar_documentos,
+        name="visualizar_documentos"
+    ),
+        
 
     path('', home, name='home'),
 

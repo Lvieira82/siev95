@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Documentos da Solicitação
+{% endblock %}
+
+{% block content %}
+
+<style>
+.doc-card{
+    background:white;
+    max-width:1100px;
+    margin:30px auto;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.doc-card h1{
+    color:#1e3a8a;
+    margin-bottom:10px;
+}
+
+.doc-info{
+    margin-bottom:25px;
+    font-weight:bold;
+}
+
+.doc-item{
+    margin-bottom:35px;
+}
+
+.doc-item h2{
+    color:#1e3a8a;
+    margin-bottom:12px;
+}
+
+.doc-frame{
+    width:100%;
+    height:750px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+}
+
+.aviso{
+    color:#b91c1c;
+    background:#fee2e2;
+    padding:15px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+.btn-voltar{
+    display:inline-block;
+    margin-top:20px;
+    background:#6b7280;
+    color:white;
+    padding:12px 20px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+@media(max-width:768px){
+    .doc-card{
+        padding:18px;
+    }
+
+    .doc-frame{
+        height:520px;
+    }
+}
+</style>
+
+<div class="doc-card">
+
+    <h1>Documentos Anexos</h1>
+
+    <div class="doc-info">
+        Protocolo: {{ solicitacao.protocolo }}<br>
+        Evento: {{ solicitacao.nome_evento }}
+    </div>
+
+    {% for doc in documentos %}
+
+        <div class="doc-item">
+            <h2>{{ doc.nome }}</h2>
+
+            <iframe
+                src="{{ doc.url }}"
+                class="doc-frame"
+            ></iframe>
+        </div>
+
+    {% empty %}
+
+        <div class="aviso">
+            Nenhum documento encontrado no disco para esta solicitação.
+        </div>
+
+    {% endfor %}
+
+    <a href="javascript:history.back()" class="btn-voltar">
+        ← Voltar
+    </a>
+
+</div>
+
+{% endblock %}
