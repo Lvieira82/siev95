@@ -24,6 +24,7 @@ import traceback
 import os
 import zipfile
 import os
+from django.urls import reverse
 import qrcode
 from django.shortcuts import render
 import base64
@@ -700,10 +701,7 @@ def home(request):
 @login_required
 def abrir_documento_solicitacao(request, id, tipo):
 
-    solicitacao = get_object_or_404(
-        Solicitacao,
-        id=id
-    )
+    solicitacao = get_object_or_404(Solicitacao, id=id)
 
     arquivos = {
         "sanitario": solicitacao.documento_sanitario,
@@ -722,6 +720,36 @@ def abrir_documento_solicitacao(request, id, tipo):
     return FileResponse(
         open(arquivo.path, "rb"),
         content_type="application/pdf"
+    )
+
+
+@login_required
+def visualizar_documentos(request, id):
+
+    solicitacao = get_object_or_404(Solicitacao, id=id)
+
+    documentos = []
+
+    campos = [
+        ("sanitario", "Documento Sanitário", solicitacao.documento_sanitario),
+        ("meio_ambiente", "Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("bombeiro", "Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+    ]
+
+    for tipo, nome, arquivo in campos:
+        if arquivo and arquivo.name and os.path.exists(arquivo.path):
+            documentos.append({
+                "nome": nome,
+                "url": reverse("abrir_documento_solicitacao", args=[solicitacao.id, tipo]),
+            })
+
+    return render(
+        request,
+        "gestao/visualizar_documentos.html",
+        {
+            "solicitacao": solicitacao,
+            "documentos": documentos,
+        }
     )
 @login_required
 def documentos_solicitacao(request, id):
@@ -758,6 +786,39 @@ def documentos_solicitacao(request, id):
     return render(
         request,
         "gestao/documentos_solicitacao.html",
+        {
+            "solicitacao": solicitacao,
+            "documentos": documentos,
+        }
+    )
+@login_required
+def visualizar_documentos(request, id):
+
+    solicitacao = get_object_or_404(
+        Solicitacao,
+        id=id
+    )
+
+    documentos = []
+
+    campos = [
+        ("Documento Sanitário", solicitacao.documento_sanitario),
+        ("Documento Meio Ambiente", solicitacao.documento_meio_ambiente),
+        ("Documento Corpo de Bombeiros", solicitacao.oficio_bombeiro),
+    ]
+
+    for nome, arquivo in campos:
+
+        if arquivo and arquivo.name and os.path.exists(arquivo.path):
+
+            documentos.append({
+                "nome": nome,
+                "url": arquivo.url,
+            })
+
+    return render(
+        request,
+        "gestao/visualizar_documentos.html",
         {
             "solicitacao": solicitacao,
             "documentos": documentos,

@@ -21,6 +21,7 @@ from apps.solicitacoes.views import (
     gerar_opo,
     listar_pendentes_opo,
     visualizar_documentos,
+    abrir_documento_solicitacao,
 )
 
 urlpatterns = [
@@ -45,6 +46,12 @@ urlpatterns = [
         aprovar_solicitacao,
         name="aprovar_solicitacao"
     ),
+
+    path(
+        "arquivo-documento/<int:id>/<str:tipo>/",
+        abrir_documento_solicitacao,
+        name="abrir_documento_solicitacao"
+),
 
     path(
         "opo/<int:id>/",

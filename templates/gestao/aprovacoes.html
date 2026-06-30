@@ -124,14 +124,9 @@
                 <td>{{ item.solicitante }}</td>
                 <td>{{ item.data_evento|date:"d/m/Y" }}</td>
                 <td>
-                    <a
-                        href="{% url 'visualizar_documentos' s.id %}"
-                        class="btn-documentos"
-                        target="_blank"
-                    >
+                    <a href="{% url 'visualizar_documentos' s.id %}" class="btn-documentos">
                         Documentos
                     </a>
-
                     <a
                         href="{% url 'aprovar_solicitacao' item.id %}"
                         class="btn-aprovar"
