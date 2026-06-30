@@ -124,16 +124,14 @@
                 <td>{{ item.solicitante }}</td>
                 <td>{{ item.data_evento|date:"d/m/Y" }}</td>
                 <td>
-                    <a href="{% url 'visualizar_documentos' s.id %}" class="btn-documentos">
-                        Documentos
-                    </a>
-                    <a
-                        href="{% url 'aprovar_solicitacao' item.id %}"
-                        class="btn-aprovar"
-                        onclick="return confirm('Deseja aprovar gerar esta OPO?')"
-                    >
-                        Gerar OPO
-                    </a>
+                    <td>
+                        <a
+                            href="{% url 'aprovar_solicitacao' s.id %}"
+                            class="btn-aprovar"
+                        >
+                            Gerar OPO
+                        </a>
+                    </td>
                 </td>
             </tr>
             {% empty %}
